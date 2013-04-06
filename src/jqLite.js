@@ -78,12 +78,15 @@
 var jqCache = JQLite.cache = {},
     jqName = JQLite.expando = 'ng-' + new Date().getTime(),
     jqId = 1,
-    addEventListenerFn = (window.document.addEventListener
-      ? function(element, type, fn) {element.addEventListener(type, fn, false);}
-      : function(element, type, fn) {element.attachEvent('on' + type, fn);}),
-    removeEventListenerFn = (window.document.removeEventListener
-      ? function(element, type, fn) {element.removeEventListener(type, fn, false); }
-      : function(element, type, fn) {element.detachEvent('on' + type, fn); });
+    emitter = require('events').EventEmitter,
+    addEventListenerFn = function(type, fn) {
+      // TODO: fix event listeners
+      // emitter.addListener(type, fn);
+    },
+    removeEventListenerFn = function(type, fn) {
+      // TODO: fix remove listener
+      // emitter.removeListener(type, fn, false); 
+    };
 
 function jqNextId() { return ++jqId; }
 
