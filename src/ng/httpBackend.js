@@ -26,7 +26,7 @@ var XHR = window.XMLHttpRequest || function() {
 function $HttpBackendProvider() {
   this.$get = ['$browser', '$window', '$document', function($browser, $window, $document) {
     return createHttpBackend($browser, XHR, $browser.defer, $window.angular.callbacks,
-        $document[0], $window.location.protocol.replace(':', ''));
+        $document[0], '');
   }];
 }
 

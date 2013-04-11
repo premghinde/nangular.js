@@ -81,6 +81,14 @@ module.exports = function(grunt) {
           minify: true
         }
       },
+      angularApp: {
+        dest: '../app-angular/server/angular/lib/angular.js',
+        src: util.wrap([files['angularSrc']], 'angular'),
+        styles: {
+          css: ['css/angular.css'],
+          minify: true
+        }
+      },
       loader: {
         dest: 'build/angular-loader.js',
         src: util.wrap(['src/loader.js'], 'loader')

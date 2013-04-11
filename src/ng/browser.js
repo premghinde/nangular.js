@@ -123,7 +123,7 @@ function Browser(window, document, $log, $sniffer) {
   // URL API
   //////////////////////////////////////////////////////////////
 
-  var lastBrowserUrl = location.href,
+  var lastBrowserUrl = '', //location.href,
       baseElement = document.find('base');
 
   /**
