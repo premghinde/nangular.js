@@ -391,7 +391,7 @@ describe('ngRepeat', function() {
 
 
   it('should iterate over non-existent elements of a sparse array', function() {
-    element = $compile('<ul><li ng-repeat="item in array">{{item}}|</li></ul>')(scope);
+    element = $compile('<ul><li ng-repeat="item in array track by $index">{{item}}|</li></ul>')(scope);
     scope.array = ['a', 'b'];
     scope.array[4] = 'c';
     scope.array[6] = 'd';
@@ -457,11 +457,31 @@ describe('ngRepeat', function() {
     });
 
 
-    it('should throw error on duplicates and recover', function() {
+    it('should throw error on adding existing duplicates and recover', function() {
       scope.items = [a, a, a];
       scope.$digest();
       expect($exceptionHandler.errors.shift().message).
-          toEqual('Duplicates in a repeater are not allowed. Repeater: item in items');
+          toEqual('Duplicates in a repeater are not allowed. Repeater: item in items key: object:003');
+
+      // recover
+      scope.items = [a];
+      scope.$digest();
+      var newElements = element.find('li');
+      expect(newElements.length).toEqual(1);
+      expect(newElements[0]).toEqual(lis[0]);
+
+      scope.items = [];
+      scope.$digest();
+      var newElements = element.find('li');
+      expect(newElements.length).toEqual(0);
+    });
+
+
+    it('should throw error on new duplicates and recover', function() {
+      scope.items = [d, d, d];
+      scope.$digest();
+      expect($exceptionHandler.errors.shift().message).
+          toEqual('Duplicates in a repeater are not allowed. Repeater: item in items key: object:009');
 
       // recover
       scope.items = [a];
@@ -513,29 +533,45 @@ describe('ngRepeat', function() {
 });
 
 describe('ngRepeat ngAnimate', function() {
-  var element, vendorPrefix, window;
+  var vendorPrefix, window;
+  var body, element;
+
+  function html(html) {
+    body.html(html);
+    element = body.children().eq(0);
+    return element;
+  }
+
+  beforeEach(function() {
+    // we need to run animation on attached elements;
+    body = jqLite(document.body);
+  });
+
+  afterEach(function(){
+    dealoc(body);
+    dealoc(element);
+  });
 
   beforeEach(module(function($animationProvider, $provide) {
     $provide.value('$window', window = angular.mock.createMockWindow());
-    return function($sniffer) {
+    return function($sniffer, $animator) {
       vendorPrefix = '-' + $sniffer.vendorPrefix + '-';
+      $animator.enabled(true);
     };
   }));
-
-  afterEach(function(){
-    dealoc(element);
-  });
 
   it('should fire off the enter animation + add and remove the css classes',
     inject(function($compile, $rootScope, $sniffer) {
 
-    element = $compile(
+    element = $compile(html(
       '<div><div ' +
         'ng-repeat="item in items" ' +
         'ng-animate="{enter: \'custom-enter\'}">' +
         '{{ item }}' + 
       '</div></div>'
-    )($rootScope);
+    ))($rootScope);
+
+    $rootScope.$digest(); // re-enable the animations;
 
     $rootScope.items = ['1','2','3'];
     $rootScope.$digest();
@@ -572,13 +608,13 @@ describe('ngRepeat ngAnimate', function() {
   it('should fire off the leave animation + add and remove the css classes',
     inject(function($compile, $rootScope, $sniffer) {
 
-    element = $compile(
+    element = $compile(html(
       '<div><div ' +
         'ng-repeat="item in items" ' +
         'ng-animate="{leave: \'custom-leave\'}">' +
         '{{ item }}' + 
       '</div></div>'
-    )($rootScope);
+    ))($rootScope);
 
     $rootScope.items = ['1','2','3'];
     $rootScope.$digest();
@@ -612,13 +648,13 @@ describe('ngRepeat ngAnimate', function() {
 
   it('should fire off the move animation + add and remove the css classes',
     inject(function($compile, $rootScope, $sniffer) {
-      element = $compile(
+      element = $compile(html(
         '<div>' +
           '<div ng-repeat="item in items" ng-animate="{move: \'custom-move\'}">' +
             '{{ item }}' +
           '</div>' +
         '</div>'
-      )($rootScope);
+      ))($rootScope);
 
       $rootScope.items = ['1','2','3'];
       $rootScope.$digest();
@@ -666,13 +702,15 @@ describe('ngRepeat ngAnimate', function() {
   it('should catch and use the correct duration for animation',
     inject(function($compile, $rootScope, $sniffer) {
 
-      element = $compile(
+      element = $compile(html(
         '<div><div ' +
           'ng-repeat="item in items" ' +
           'ng-animate="{enter: \'custom-enter\'}">' +
           '{{ item }}' +
         '</div></div>'
-      )($rootScope);
+      ))($rootScope);
+
+      $rootScope.$digest(); // re-enable the animations;
 
       $rootScope.items = ['a','b'];
       $rootScope.$digest();
