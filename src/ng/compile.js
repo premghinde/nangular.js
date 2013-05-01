@@ -358,15 +358,12 @@ function $CompileProvider($provide) {
     //================================
 
     function compile($compileNodes, transcludeFn, maxPriority) {
-      if (!($compileNodes instanceof jqLite)) {
-        // jquery always rewraps, whereas we need to preserve the original selector so that we can modify it.
-        $compileNodes = jqLite($compileNodes);
-      }
+      $compileNodes = [$compileNodes];
       // We can not compile top level text elements since text nodes can be merged and we will
       // not be able to attach scope data to them, so we will wrap them in <span>
       forEach($compileNodes, function(node, index){
         if (node.nodeType == 3 /* text node */ && node.nodeValue.match(/\S+/) /* non-empty */ ) {
-          $compileNodes[index] = jqLite(node).wrap('<span></span>').parent()[0];
+          $compileNodes[index] = [node];
         }
       });
       var compositeLinkFn = compileNodes($compileNodes, transcludeFn, $compileNodes, maxPriority);
@@ -374,9 +371,7 @@ function $CompileProvider($provide) {
         assertArg(scope, 'scope');
         // important!!: we must call our jqLite.clone() since the jQuery one is trying to be smart
         // and sometimes changes the structure of the DOM.
-        var $linkNode = cloneConnectFn
-          ? JQLitePrototype.clone.call($compileNodes) // IMPORTANT!!!
-          : $compileNodes;
+        var $linkNode = $compileNodes;
 
         // Attach scope only to non-text nodes.
         for(var i = 0, ii = $linkNode.length; i<ii; i++) {
@@ -464,7 +459,8 @@ function $CompileProvider($provide) {
           if (nodeLinkFn) {
             if (nodeLinkFn.scope) {
               childScope = scope.$new(isObject(nodeLinkFn.scope));
-              jqLite(node).data('$scope', childScope);
+              node.data = node.data || {};
+              node.data['$scope'] = childScope;
             } else {
               childScope = scope;
             }
@@ -594,7 +590,7 @@ function $CompileProvider($provide) {
           newScopeDirective = null,
           newIsolateScopeDirective = null,
           templateDirective = null,
-          $compileNode = templateAttrs.$$element = jqLite(compileNode),
+          $compileNode = templateAttrs.$$element = [compileNode],
           directive,
           directiveName,
           $template,
@@ -637,11 +633,11 @@ function $CompileProvider($provide) {
           transcludeDirective = directive;
           terminalPriority = directive.priority;
           if (directiveValue == 'element') {
-            $template = jqLite(compileNode);
+            $template = [compileNode];
             $compileNode = templateAttrs.$$element =
-                jqLite(document.createComment(' ' + directiveName + ': ' + templateAttrs[directiveName] + ' '));
+                [document.createComment(' ' + directiveName + ': ' + templateAttrs[directiveName] + ' ')];
             compileNode = $compileNode[0];
-            replaceWith($rootElement, jqLite($template[0]), compileNode);
+            replaceWith($rootElement, [$template[0]], compileNode);
             childTranscludeFn = compile($template, transcludeFn, terminalPriority);
           } else {
             $template = jqLite(JQLiteClone(compileNode)).contents();
@@ -661,9 +657,9 @@ function $CompileProvider($provide) {
           directiveValue = denormalizeTemplate(directiveValue);
 
           if (directive.replace) {
-            $template = jqLite('<div>' +
+            $template = ['<div>' +
                                  trim(directiveValue) +
-                               '</div>').contents();
+                               '</div>'];
             compileNode = $template[0];
 
             if ($template.length != 1 || compileNode.nodeType !== 1) {
@@ -772,7 +768,7 @@ function $CompileProvider($provide) {
         if (compileNode === linkNode) {
           attrs = templateAttrs;
         } else {
-          attrs = shallowCopy(templateAttrs, new Attributes(jqLite(linkNode), templateAttrs.$attr));
+          attrs = shallowCopy(templateAttrs, new Attributes([linkNode], templateAttrs.$attr));
         }
         $element = attrs.$$element;
 
@@ -994,7 +990,7 @@ function $CompileProvider($provide) {
           content = denormalizeTemplate(content);
 
           if (replace) {
-            $template = jqLite('<div>' + trim(content) + '</div>').contents();
+            $template = ['<div>' + trim(content) + '</div>'];
             compileNode = $template[0];
 
             if ($template.length != 1 || compileNode.nodeType !== 1) {

@@ -170,7 +170,6 @@
         // empty the cache to prevent mem leaks
         globalVars = {};
 
-        bindJQuery();
         publishExternalAPI(window.angular);
 
         angularInit(document, angular.bootstrap);

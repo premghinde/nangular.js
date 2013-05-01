@@ -6,11 +6,11 @@
  * @requires $window
  *
  * @description
- * A {@link angular.element jQuery (lite)}-wrapped reference to the browser's `window.document`
+ * A {@link angular.element jQuery (lite)}-wrapped reference to the `global`
  * element.
  */
 function $DocumentProvider(){
-  this.$get = ['$window', function(window){
-    return jqLite(window.document);
+  this.$get = ['$window', function(window) {
+    return [ window ];
   }];
 }

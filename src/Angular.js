@@ -939,7 +939,7 @@ function bootstrap(element, modules) {
     injector.invoke(['$rootScope', '$rootElement', '$compile', '$injector', '$animator',
        function(scope, element, compile, injector, animator) {
         scope.$apply(function() {
-          element.data('$injector', injector);
+          element.data['$injector'] = injector;
           compile(element)(scope);
         });
         animator.enabled(true);

@@ -131,7 +131,9 @@ var $AnimatorProvider = function() {
 
   this.$get = ['$animation', '$window', '$sniffer', '$rootElement', '$rootScope',
       function($animation, $window, $sniffer, $rootElement, $rootScope) {
-    $rootElement.data(NG_ANIMATE_CONTROLLER, rootAnimateController);
+
+    $rootElement.data = $rootElement.data || {};
+    $rootElement.data[NG_ANIMATE_CONTROLLER] = rootAnimateController;
 
     /**
      * @ngdoc function

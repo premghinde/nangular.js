@@ -123,8 +123,7 @@ function Browser(window, document, $log, $sniffer) {
   // URL API
   //////////////////////////////////////////////////////////////
 
-  var lastBrowserUrl = '', //location.href,
-      baseElement = document.find('base');
+  var lastBrowserUrl = '';
 
   /**
    * @name ng.$browser#url
@@ -155,8 +154,6 @@ function Browser(window, document, $log, $sniffer) {
         if (replace) history.replaceState(null, '', url);
         else {
           history.pushState(null, '', url);
-          // Crazy Opera Bug: http://my.opera.com/community/forums/topic.dml?id=1185462
-          baseElement.attr('href', baseElement.attr('href'));
         }
       } else {
         if (replace) location.replace(url);
@@ -236,8 +233,7 @@ function Browser(window, document, $log, $sniffer) {
    * @returns {string=}
    */
   self.baseHref = function() {
-    var href = baseElement.attr('href');
-    return href ? href.replace(/^https?\:\/\/[^\/]*/, '') : '';
+    return '';
   };
 
   //////////////////////////////////////////////////////////////

@@ -1,4 +1,3 @@
-bindJQuery();
 publishExternalAPI(angular);
 
 var $runner = new angular.scenario.Runner(window),
