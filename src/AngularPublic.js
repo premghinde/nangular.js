@@ -28,7 +28,6 @@ function publishExternalAPI(angular){
     'copy': copy,
     'extend': extend,
     'equals': equals,
-    'element': jqLite,
     'forEach': forEach,
     'injector': createInjector,
     'noop':noop,

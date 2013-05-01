@@ -47,11 +47,6 @@ function $SnifferProvider() {
                   // IE8 compatible mode lies
                   (!document.documentMode || document.documentMode > 7),
       hasEvent: function(event) {
-        // IE9 implements 'input' event it's so fubared that we rather pretend that it doesn't have
-        // it. In particular the event is not fired when backspace or delete key are pressed or
-        // when cut operation is performed.
-        if (event == 'input' && msie == 9) return false;
-
         if (isUndefined(eventSupport[event])) {
           var divElm = document.createElement('div');
           eventSupport[event] = 'on' + event in divElm;

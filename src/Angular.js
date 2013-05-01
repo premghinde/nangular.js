@@ -47,11 +47,7 @@ if ('i' !== 'I'.toLowerCase()) {
 }
 
 
-var /** holds major version number for IE or NaN for real browsers */
-    msie              = false,
-    jqLite,           // delay binding since jQuery could be loaded after us.
-    jQuery,           // delay binding
-    slice             = [].slice,
+var slice             = [].slice,
     push              = [].push,
     toString          = Object.prototype.toString,
 
@@ -124,9 +120,7 @@ function isArrayLike(obj) {
     // This is here for IE8: it is a bogus object treat it as array;
     return true;
   } else  {
-    return obj instanceof JQLite ||                      // JQLite
-           (jQuery && obj instanceof jQuery) ||          // jQuery
-           toString.call(obj) !== '[object Object]' ||   // some browser native object
+    return toString.call(obj) !== '[object Object]' ||   // some browser native object
            typeof obj.callee === 'function';              // arguments (on IE8 looks like regular obj)
   }
 }
@@ -470,17 +464,9 @@ function makeMap(str){
 }
 
 
-if (msie < 9) {
-  nodeName_ = function(element) {
-    element = element.nodeName ? element : element[0];
-    return (element.scopeName && element.scopeName != 'HTML')
-      ? uppercase(element.scopeName + ':' + element.nodeName) : element.nodeName;
-  };
-} else {
-  nodeName_ = function(element) {
-    return element.nodeName ? element.nodeName : element[0].nodeName;
-  };
-}
+nodeName_ = function(element) {
+  return element.nodeName ? element.nodeName : element[0].nodeName;
+};
 
 
 function map(obj, iterator, context) {
@@ -790,31 +776,6 @@ function toBoolean(value) {
   return value;
 }
 
-/**
- * @returns {string} Returns the string representation of the element.
- */
-function startingTag(element) {
-  element = jqLite(element).clone();
-  try {
-    // turns out IE does not let you set .html() on elements which
-    // are not allowed to have children. So we just ignore it.
-    element.html('');
-  } catch(e) {}
-  // As Per DOM Standards
-  var TEXT_NODE = 3;
-  var elemHtml = jqLite('<div>').append(element).html();
-  try {
-    return element[0].nodeType === TEXT_NODE ? lowercase(elemHtml) :
-        elemHtml.
-          match(/^(<[^>]+>)/)[1].
-          replace(/^<([\w\-]+)/, function(match, nodeName) { return '<' + lowercase(nodeName); });
-  } catch(e) {
-    return lowercase(elemHtml);
-  }
-
-}
-
-
 /////////////////////////////////////////////////
 
 /**
@@ -968,7 +929,7 @@ function angularInit(element, bootstrap) {
  */
 function bootstrap(element, modules) {
   var resumeBootstrapInternal = function() {
-    element = jqLite(element);
+    element = [ window ];
     modules = modules || [];
     modules.unshift(['$provide', function($provide) {
       $provide.value('$rootElement', element);
@@ -1008,27 +969,6 @@ function snake_case(name, separator){
   return name.replace(SNAKE_CASE_REGEXP, function(letter, pos) {
     return (pos ? separator : '') + letter.toLowerCase();
   });
-}
-
-function bindJQuery() {
-  // bind to jQuery if present;
-  jQuery = window.jQuery;
-  // reset to jQuery or default to us.
-  if (jQuery) {
-    jqLite = jQuery;
-    extend(jQuery.fn, {
-      scope: JQLitePrototype.scope,
-      controller: JQLitePrototype.controller,
-      injector: JQLitePrototype.injector,
-      inheritedData: JQLitePrototype.inheritedData
-    });
-    JQLitePatchJQueryRemove('remove', true);
-    JQLitePatchJQueryRemove('empty');
-    JQLitePatchJQueryRemove('html');
-  } else {
-    jqLite = JQLite;
-  }
-  angular.element = jqLite;
 }
 
 /**

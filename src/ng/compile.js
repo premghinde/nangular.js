@@ -527,9 +527,7 @@ function $CompileProvider($provide) {
               }
               nName = directiveNormalize(name.toLowerCase());
               attrsMap[nName] = name;
-              attrs[nName] = value = trim((msie && name == 'href')
-                ? decodeURIComponent(node.getAttribute(name, 2))
-                : attr.value);
+              attrs[nName] = value = trim(attr.value);
               if (getBooleanAttrName(node, nName)) {
                 attrs[nName] = true; // presence means true
               }

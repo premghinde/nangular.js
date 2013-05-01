@@ -1,8 +1,6 @@
 'use strict';
 
 (function() {
-  var msie = parseInt((/msie (\d+)/.exec(navigator.userAgent.toLowerCase()) || [])[1], 10);
-
   function indexOf(array, obj) {
     if (array.indexOf) return array.indexOf(obj);
 
@@ -61,56 +59,30 @@
       return indexOf(keys, key) !== -1;
     }
 
-    if (msie < 9) {
-      if (inputType == 'radio' || inputType == 'checkbox') {
-          element.checked = !element.checked;
-      }
+    var evnt = document.createEvent('MouseEvents'),
+        originalPreventDefault = evnt.preventDefault,
+        appWindow = element.ownerDocument.defaultView,
+        fakeProcessDefault = true,
+        finalProcessDefault,
+        angular = appWindow.angular || {};
 
-      // WTF!!! Error: Unspecified error.
-      // Don't know why, but some elements when detached seem to be in inconsistent state and
-      // calling .fireEvent() on them will result in very unhelpful error (Error: Unspecified error)
-      // forcing the browser to compute the element position (by reading its CSS)
-      // puts the element in consistent state.
-      element.style.posLeft;
+    // igor: temporary fix for https://bugzilla.mozilla.org/show_bug.cgi?id=684208
+    angular['ff-684208-preventDefault'] = false;
+    evnt.preventDefault = function() {
+      fakeProcessDefault = false;
+      return originalPreventDefault.apply(evnt, arguments);
+    };
 
-      // TODO(vojta): create event objects with pressed keys to get it working on IE<9
-      var ret = element.fireEvent('on' + eventType);
-      if (inputType == 'submit') {
-        while(element) {
-          if (element.nodeName.toLowerCase() == 'form') {
-            element.fireEvent('onsubmit');
-            break;
-          }
-          element = element.parentNode;
-        }
-      }
-      return ret;
-    } else {
-      var evnt = document.createEvent('MouseEvents'),
-          originalPreventDefault = evnt.preventDefault,
-          appWindow = element.ownerDocument.defaultView,
-          fakeProcessDefault = true,
-          finalProcessDefault,
-          angular = appWindow.angular || {};
+    x = x || 0;
+    y = y || 0;
+    evnt.initMouseEvent(eventType, true, true, window, 0, x, y, x, y, pressed('ctrl'), pressed('alt'),
+        pressed('shift'), pressed('meta'), 0, element);
 
-      // igor: temporary fix for https://bugzilla.mozilla.org/show_bug.cgi?id=684208
-      angular['ff-684208-preventDefault'] = false;
-      evnt.preventDefault = function() {
-        fakeProcessDefault = false;
-        return originalPreventDefault.apply(evnt, arguments);
-      };
+    element.dispatchEvent(evnt);
+    finalProcessDefault = !(angular['ff-684208-preventDefault'] || !fakeProcessDefault);
 
-      x = x || 0;
-      y = y || 0;
-      evnt.initMouseEvent(eventType, true, true, window, 0, x, y, x, y, pressed('ctrl'), pressed('alt'),
-          pressed('shift'), pressed('meta'), 0, element);
+    delete angular['ff-684208-preventDefault'];
 
-      element.dispatchEvent(evnt);
-      finalProcessDefault = !(angular['ff-684208-preventDefault'] || !fakeProcessDefault);
-
-      delete angular['ff-684208-preventDefault'];
-
-      return finalProcessDefault;
-    }
+    return finalProcessDefault;
   }
 }());

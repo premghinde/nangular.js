@@ -143,13 +143,7 @@ function createHttpBackend($browser, XHR, $browserDefer, callbacks, rawDocument,
     script.type = 'text/javascript';
     script.src = url;
 
-    if (msie) {
-      script.onreadystatechange = function() {
-        if (/loaded|complete/.test(script.readyState)) doneWrapper();
-      };
-    } else {
-      script.onload = script.onerror = doneWrapper;
-    }
+    script.onload = script.onerror = doneWrapper;
 
     rawDocument.body.appendChild(script);
   }

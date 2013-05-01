@@ -1069,8 +1069,7 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
    * @private
    */
   function recombineTagsAndDecorations(job) {
-    var isIE8OrEarlier = /\bMSIE\s(\d+)/.exec(navigator.userAgent);
-    isIE8OrEarlier = isIE8OrEarlier && +isIE8OrEarlier[1] <= 8;
+    var isIE8OrEarlier = false;
     var newlineRe = /\n/g;
   
     var source = job.sourceCode;

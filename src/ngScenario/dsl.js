@@ -198,7 +198,7 @@ angular.scenario.dsl('binding', function() {
  */
 angular.scenario.dsl('input', function() {
   var chain = {};
-  var supportInputEvent =  'oninput' in document.createElement('div') && msie != 9;
+  var supportInputEvent = false;
 
   chain.enter = function(value, event) {
     return this.addFutureAction("input '" + this.name + "' enter '" + value + "'", function($window, $document, done) {
