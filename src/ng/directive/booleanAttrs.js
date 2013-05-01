@@ -307,38 +307,3 @@
 var ngAttributeAliasDirectives = {};
 
 
-// boolean attrs are evaluated
-forEach(BOOLEAN_ATTR, function(propName, attrName) {
-  var normalized = directiveNormalize('ng-' + attrName);
-  ngAttributeAliasDirectives[normalized] = function() {
-    return {
-      priority: 100,
-      compile: function() {
-        return function(scope, element, attr) {
-          scope.$watch(attr[normalized], function ngBooleanAttrWatchAction(value) {
-            attr.$set(attrName, !!value);
-          });
-        };
-      }
-    };
-  };
-});
-
-
-// ng-src, ng-href are interpolated
-forEach(['src', 'href'], function(attrName) {
-  var normalized = directiveNormalize('ng-' + attrName);
-  ngAttributeAliasDirectives[normalized] = function() {
-    return {
-      priority: 99, // it needs to run after the attributes are interpolated
-      link: function(scope, element, attr) {
-        attr.$observe(normalized, function(value) {
-          if (!value)
-             return;
-
-          attr.$set(attrName, value);
-        });
-      }
-    };
-  };
-});
